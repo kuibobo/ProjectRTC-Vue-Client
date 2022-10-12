@@ -14,13 +14,13 @@
         <tbody>
         <tr v-for="item in streams">
           <td><a>{{item.name}}</a></td>
-          <td><el-button @click="handleCall(item)">呼叫</el-button></td>
+          <td><input type="button" @click="handleCall(item)" value="呼叫"></td>
         </tr>
         </tbody>
       </table>
 
       <li style="width: 240px">
-        <el-button @click="handleLoadData">刷新</el-button>
+        <input type="button" @click="handleLoadData" value="刷新"/>
       </li>
       <div class="remoteStreams">
 
@@ -33,8 +33,8 @@
       <p>Username: <input ng-model="localStream.name" class="ng-pristine ng-untouched ng-valid"></p>
       <video id="localVideo" muted="muted" autoplay="true"></video>
       <li>
-        <el-button @click="handleShowCam" v-if="!isShowVideo">开始</el-button>
-        <el-button @click="handleCloseCam" v-else>关闭</el-button>
+        <input type="button" @click="handleShowCam" v-if="!isShowVideo" value="开始"/>
+        <input type="button" @click="handleCloseCam" v-else value="关闭" />
       </li>
       <div ng-show="localStream.cameraIsOn" class="ng-hide">
         <p>Share this link:</p>
@@ -45,10 +45,10 @@
 </template>
 
 <script>
-import { PeerManager, Peer, requestUserMedia, attachMediaStream } from '@/utils/webrtc-client'
+import { PeerManager, Peer, requestUserMedia, attachMediaStream } from './webrtc-client'
 
 export default {
-  name: "Login",
+  name: "HelloWord",
   data() {
     return {
       camera: {},
@@ -80,30 +80,27 @@ export default {
 
     me.camera.start = function(){
       return requestUserMedia(mediaConfig)
-        .then(function(stream){
-          attachMediaStream(me.camera.preview, stream);
-          me.client.setLocalStream(stream);
-          me.camera.stream = stream;
-          me.$root.eventHub.$emit('cameraIsOn', true)
-        })
-        .catch(Error('Failed to get access to local media.'));
+          .then(function(stream){
+            attachMediaStream(me.camera.preview, stream);
+            me.client.setLocalStream(stream);
+            me.camera.stream = stream;
+            me.$root.eventHub.$emit('cameraIsOn', true)
+          })
+          .catch(Error('Failed to get access to local media.'));
     };
     me.camera.stop = function(){
       return new Promise(function(resolve, reject){
         try {
-          //camera.stream.stop() no longer works
-          for( var track in me.camera.stream.getTracks() ){
-            track.stop();
-          }
+          me.camera.stream.getTracks().forEach(t => t.stop())
           me.camera.preview.src = '';
           resolve();
         } catch(error) {
           reject(error);
         }
       })
-        .then(function(result){
-          me.$root.eventHub.$emit('cameraIsOn', false)
-        });
+          .then(function(result){
+            me.$root.eventHub.$emit('cameraIsOn', false)
+          });
     };
   },
   methods: {
@@ -121,16 +118,16 @@ export default {
 
       let me = this
 // Make a request for a user with a given ID
-      axios.get('http://192.168.2.220:3002/clients')
-        .then(function (resp) {
-          // handle success
-          for(var i=0; i<resp.data.length;i++) {
-            var stream = me.getStreamById(resp.data[i].id);
-            resp.data[i].isPlaying = (!!stream) ? stream.isPLaying : false;
-          }
-          me.streams = resp.data
-          console.log(resp.data);
-        })
+      axios.get('http://192.168.0.3:3002/clients')
+          .then(function (resp) {
+            // handle success
+            for(var i=0; i<resp.data.length;i++) {
+              var stream = me.getStreamById(resp.data[i].id);
+              resp.data[i].isPlaying = (!!stream) ? stream.isPLaying : false;
+            }
+            me.streams = resp.data
+            console.log(resp.data);
+          })
     },
 
     handleShowCam() {
@@ -138,36 +135,36 @@ export default {
       me.camera.start().then(function(result) {
         me.client.send('readyToStream', { name: 'ChromeX' });
       })
-        .catch(function(err) {
-          console.log(err);
-        });
+          .catch(function(err) {
+            console.log(err);
+          });
     },
     handleCloseCam() {
       let me = this
       me.camera.stop()
-        .then(function(result){
-          me.client.send('leave');
-          me.client.setLocalStream(null);
-        })
-        .catch(function(err) {
-          console.log(err);
-        });
+          .then(function(result){
+            me.client.send('leave');
+            me.client.setLocalStream(null);
+          })
+          .catch(function(err) {
+            console.log(err);
+          });
     },
     handleCall(stream) {
       let me = this
       me.camera.start()
-        .then(function(result) {
-          me.client.toggleLocalStream(stream.id);
-          if(stream.isPlaying){
-            me.client.peerRenegociate(stream.id);
-          } else {
-            me.client.peerInit(stream.id);
-          }
-          stream.isPlaying = stream.isPlaying == undefined ? true : !stream.isPlaying;
-        })
-        .catch(function(err) {
-          console.log(err);
-        });
+          .then(function(result) {
+            me.client.toggleLocalStream(stream.id);
+            if(stream.isPlaying){
+              me.client.peerRenegociate(stream.id);
+            } else {
+              me.client.peerInit(stream.id);
+            }
+            stream.isPlaying = stream.isPlaying == undefined ? true : !stream.isPlaying;
+          })
+          .catch(function(err) {
+            console.log(err);
+          });
     },
   }
 };

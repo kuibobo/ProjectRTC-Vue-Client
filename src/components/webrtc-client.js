@@ -20,7 +20,7 @@ var PeerManager = (function () {
     peerDatabase = {},
     localStream,
     remoteVideoContainer = document.getElementById('remoteVideosContainer'),
-    socket = io('http://192.168.2.220:3001', {
+    socket = io('http://192.168.0.3:3001', {
       type: Object,  // NOTE: use these options: https://socket.io/docs/v4/client-options/
       default() {
         return { rejectUnauthorized: false, transports: ['polling', 'websocket'] };
