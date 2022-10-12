@@ -13,3 +13,9 @@ new Vue({
 }).$mount('#app')
 ```
 
+项目添加socket.io-client依赖, 版本在1.0.6下通过测试通过
+
+```
+yarn add socket.io-client@1.0.6
+```
+
