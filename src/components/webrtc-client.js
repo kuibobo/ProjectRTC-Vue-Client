@@ -1,7 +1,7 @@
 //import { io } from "socket.io-client";
 
 const io = require('socket.io-client');
-var PeerManager = (function () {
+var PeerManager = (function (url) {
 
   var localId,
     config = {
@@ -19,8 +19,9 @@ var PeerManager = (function () {
     },
     peerDatabase = {},
     localStream,
+      inviteCallback,
     remoteVideoContainer = document.getElementById('remoteVideosContainer'),
-    socket = io('http://192.168.0.3:3001', {
+    socket = io(url, {
       type: Object,  // NOTE: use these options: https://socket.io/docs/v4/client-options/
       default() {
         return { rejectUnauthorized: false, transports: ['polling', 'websocket'] };
@@ -93,6 +94,9 @@ var PeerManager = (function () {
     console.log('received ' + type + ' from ' + from);
 
     switch (type) {
+      case 'accept':
+        inviteCallback()
+        break;
       case 'init':
         toggleLocalStream(pc);
         offer(from);
@@ -157,6 +161,12 @@ var PeerManager = (function () {
     toggleLocalStream: function(remoteId) {
       peer = peerDatabase[remoteId] || addPeer(remoteId);
       toggleLocalStream(peer.pc);
+    },
+
+    invite: function(remoteId, callback) {
+      console.info('invite', remoteId)
+      inviteCallback = callback
+      send('invite', remoteId, null);
     },
 
     peerInit: function(remoteId) {

@@ -14,7 +14,7 @@
         <tbody>
         <tr v-for="item in streams">
           <td><a>{{item.name}}</a></td>
-          <td><input type="button" @click="handleCall(item)" value="呼叫"></td>
+          <td><input type="button" @click="handleInvite(item)" value="邀请"><input type="button" @click="handleCall(item)" value="呼叫"></td>
         </tr>
         </tbody>
       </table>
@@ -63,7 +63,7 @@ export default {
     console.info("created")
     let me = this
     me.camera.preview = window.document.getElementById('localVideo');
-    me.client = new PeerManager();
+    me.client = new PeerManager('http://192.168.0.5:3001');
 
     var mediaConfig = {
       audio:true,
@@ -118,7 +118,7 @@ export default {
 
       let me = this
 // Make a request for a user with a given ID
-      axios.get('http://192.168.0.3:3002/clients')
+      axios.get('http://192.168.0.5:3002/clients')
           .then(function (resp) {
             // handle success
             for(var i=0; i<resp.data.length;i++) {
@@ -150,6 +150,13 @@ export default {
             console.log(err);
           });
     },
+    handleInvite(stream) {
+      let me = this
+      this.client.invite(stream.id, function() {
+        me.handleCall(stream)
+      });
+    },
+
     handleCall(stream) {
       let me = this
       me.camera.start()
