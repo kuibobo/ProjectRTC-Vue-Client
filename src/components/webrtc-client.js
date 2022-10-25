@@ -20,6 +20,7 @@ var PeerManager = (function (url) {
     peerDatabase = {},
     localStream,
       inviteCallback,
+      rejectCallback,
     remoteVideoContainer = document.getElementById('remoteVideosContainer'),
     socket = io(url, {
       type: Object,  // NOTE: use these options: https://socket.io/docs/v4/client-options/
@@ -97,6 +98,9 @@ var PeerManager = (function (url) {
       case 'accept':
         inviteCallback()
         break;
+      case 'reject':
+        rejectCallback()
+        break;
       case 'init':
         toggleLocalStream(pc);
         offer(from);
@@ -163,9 +167,10 @@ var PeerManager = (function (url) {
       toggleLocalStream(peer.pc);
     },
 
-    invite: function(remoteId, callback) {
+    invite: function(remoteId, invite, reject) {
       console.info('invite', remoteId)
-      inviteCallback = callback
+      inviteCallback = invite
+      rejectCallback = reject
       send('invite', remoteId, null);
     },
 

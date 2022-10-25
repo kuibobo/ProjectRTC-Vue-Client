@@ -63,7 +63,7 @@ export default {
     console.info("created")
     let me = this
     me.camera.preview = window.document.getElementById('localVideo');
-    me.client = new PeerManager('http://192.168.0.5:3001');
+    me.client = new PeerManager('http://192.168.0.4:3001');
 
     var mediaConfig = {
       audio:true,
@@ -118,15 +118,15 @@ export default {
 
       let me = this
 // Make a request for a user with a given ID
-      axios.get('http://192.168.0.5:3002/clients')
+      axios.get('http://127.0.0.1:23301/api/webrtc/clients')
           .then(function (resp) {
             // handle success
-            for(var i=0; i<resp.data.length;i++) {
-              var stream = me.getStreamById(resp.data[i].id);
-              resp.data[i].isPlaying = (!!stream) ? stream.isPLaying : false;
+            for(var i=0; i<resp.data.data.length;i++) {
+              var stream = me.getStreamById(resp.data.data[i].id);
+              resp.data.data[i].isPlaying = (!!stream) ? stream.isPLaying : false;
             }
-            me.streams = resp.data
-            console.log(resp.data);
+            me.streams = resp.data.data
+            console.log(resp.data.data);
           })
     },
 
@@ -154,6 +154,8 @@ export default {
       let me = this
       this.client.invite(stream.id, function() {
         me.handleCall(stream)
+      }, function() {
+        alert('reject')
       });
     },
 
