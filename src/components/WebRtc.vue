@@ -63,7 +63,7 @@ export default {
     console.info("created")
     let me = this
     me.camera.preview = window.document.getElementById('localVideo');
-    me.client = new PeerManager('http://192.168.0.4:3001');
+    me.client = new PeerManager('http://127.0.0.1:3001');
 
     var mediaConfig = {
       audio:true,
@@ -156,6 +156,8 @@ export default {
         me.handleCall(stream)
       }, function() {
         alert('reject')
+      }, function() {
+        stream.isPlaying = false
       });
     },
 
