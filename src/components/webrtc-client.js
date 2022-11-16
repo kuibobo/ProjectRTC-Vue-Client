@@ -24,6 +24,7 @@ var PeerManager = (function (url) {
       leaveCallback,
     remoteVideoContainer = document.getElementById('remoteVideosContainer'),
     socket = io(url, {
+      //path: '/ws/socket.io',
       type: Object,  // NOTE: use these options: https://socket.io/docs/v4/client-options/
       default() {
         return { rejectUnauthorized: false, transports: ['polling', 'websocket'] };
@@ -83,6 +84,7 @@ var PeerManager = (function (url) {
     pc.createOffer(
       function(sessionDescription) {
         pc.setLocalDescription(sessionDescription);
+        console.info('send offer', remoteId, sessionDescription)
         send('offer', remoteId, sessionDescription);
       },
       error
@@ -93,7 +95,7 @@ var PeerManager = (function (url) {
       from = message.from,
       pc = (peerDatabase[from] || addPeer(from)).pc;
 
-    console.log('received ' + type + ' from ' + from);
+    console.log('received ' + type + ' from ' + from, message);
 
     switch (type) {
       case 'accept':
@@ -110,6 +112,7 @@ var PeerManager = (function (url) {
         offer(from);
         break;
       case 'offer':
+        console.info('offer', message.payload)
         pc.setRemoteDescription(new RTCSessionDescription(message.payload), function(){}, error);
         answer(from);
         break;
@@ -128,7 +131,7 @@ var PeerManager = (function (url) {
     }
   }
   function send(type, to, payload) {
-    console.log('sending ' + type + ' to ' + to);
+    console.log('sending ' + type + ' to ' + to, payload);
 
     socket.emit('message', {
       to: to,

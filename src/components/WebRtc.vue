@@ -1,7 +1,7 @@
 <template>
   <div class="webrtc">
     <div class="remoteStreams ng-scope" ng-controller="RemoteStreamsController as rtc">
-      <h2>Remote Streams</h2>
+      <h2>WebRTC Remote Streams</h2>
 
       <div id="remoteVideosContainer"></div>
 
@@ -63,7 +63,7 @@ export default {
     console.info("created")
     let me = this
     me.camera.preview = window.document.getElementById('localVideo');
-    me.client = new PeerManager('http://127.0.0.1:3001');
+    me.client = new PeerManager('http://127.0.0.1:3001/');
 
     var mediaConfig = {
       audio:true,
@@ -118,7 +118,7 @@ export default {
 
       let me = this
 // Make a request for a user with a given ID
-      axios.get('http://127.0.0.1:23301/api/webrtc/clients')
+      axios.get('http://127.0.0.1:3002/clients')
           .then(function (resp) {
             // handle success
             for(var i=0; i<resp.data.data.length;i++) {
@@ -133,6 +133,7 @@ export default {
     handleShowCam() {
       let me = this
       me.camera.start().then(function(result) {
+        console.info('readyToStream')
         me.client.send('readyToStream', { name: 'ChromeX' });
       })
           .catch(function(err) {

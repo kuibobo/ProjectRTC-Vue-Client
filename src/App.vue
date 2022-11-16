@@ -1,16 +1,17 @@
 <template>
   <div id="app">
-    <web-rtc />
+    <sky-rtc />
   </div>
 </template>
 
 <script>
 import WebRtc from './components/WebRtc.vue'
+import SkyRtc from './components/SkyRtc.vue'
 
 export default {
   name: 'App',
   components: {
-    WebRtc
+    WebRtc, SkyRtc
   }
 }
 </script>
